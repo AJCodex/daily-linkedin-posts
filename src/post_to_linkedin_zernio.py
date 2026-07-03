@@ -100,7 +100,6 @@ def extract_posts_from_file() -> list:
     """
     Extract posts with images from multimedia JSON file.
     Falls back to text file if JSON not found.
-    Converts file:// URLs to base64 data URLs for Zernio API.
     """
     
     # Try JSON file (has images)
@@ -117,14 +116,7 @@ def extract_posts_from_file() -> list:
             for post in posts_data:
                 image_url = post.get("image_url", "")
                 
-                # Convert file:// URLs to base64 data URLs
-                if image_url.startswith("file://"):
-                    logger.debug(f"Converting local file to base64 data URL...")
-                    image_url = file_url_to_base64(image_url)
-                    if image_url:
-                        logger.info(f"✓ Local image converted to base64 ({len(image_url)//1000} KB)")
-                
-                # SECURITY: Validate URL (skip for base64 data URLs)
+                # SECURITY: Validate URL (skip for data URLs and file:// URLs - use Unsplash only)
                 if image_url and not image_url.startswith("data:") and not validate_url(image_url):
                     logger.warning(f"Invalid image URL, skipping: {image_url[:50]}")
                     image_url = ""
@@ -137,7 +129,7 @@ def extract_posts_from_file() -> list:
                     "source": post.get("source", "")
                 })
             
-            logger.info(f"✓ Extracted {len(posts)} posts with images")
+            logger.info(f"✓ Extracted {len(posts)} posts with Unsplash URLs")
             return posts
     
     # Fallback: Read from text file (no images)
@@ -221,16 +213,18 @@ def post_to_linkedin(post_data: dict) -> dict:
         platform_config["publishNow"] = True
         publish_status = "posting now"
     
-    # Build Zernio API payload
+    # Build Zernio API payload with image support
+    # Zernio accepts images via "media" array or direct "image" field
     payload = {
         "content": content,
         "platforms": [platform_config]
     }
     
-    # Add image if present
+    # Add image if present - use Unsplash URLs (Zernio does NOT support inline base64)
     if image_url:
         payload["media"] = [{"type": "image", "url": image_url}]
-        image_info = "with image" if image_url.startswith("data:") else f"with image: {image_url[:60]}..."
+        image_info = f"with image: {image_url[:50]}..."
+        logger.debug(f"Image URL: {image_url[:80]}")
     else:
         image_info = "without image"
     
@@ -242,6 +236,7 @@ def post_to_linkedin(post_data: dict) -> dict:
     }
     
     logger.info(f"\n[{stream_num}] Posting {post_type} ({publish_status}) {image_info}")
+    logger.debug(f"Payload: {json.dumps({k: (str(v)[:100] + '...' if len(str(v)) > 100 else v) for k, v in payload.items() if k != 'image'}, indent=2)}")
     
     try:
         # Make API request with retry logic

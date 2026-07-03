@@ -428,26 +428,40 @@ def process_visual_posts():
         post_type = post.get("type", "")
         content = post.get("content", "")
         
-        # Carousel posts
+        # Carousel posts - generate PNG for reference but use Unsplash URL for LinkedIn
         if "Carousel" in post_type:
             logger.info("Processing carousel post...")
             slides = parse_carousel_slides(content)
             logger.debug(f"Found {len(slides)} slides")
             image_path = create_carousel_image(slides)
             
-            post["image_url"] = f"file://{os.path.abspath(image_path)}"
+            # Store generated image path for reference (GitHub Actions output)
             post["generated_image"] = image_path
             post["is_generated"] = True
+            
+            # BUT: Use Unsplash URL for LinkedIn (Zernio doesn't support inline base64)
+            # Extract keywords from carousel title/content
+            carousel_keywords = "presentation,career,learning,skills,development"
+            post["image_url"] = f"https://source.unsplash.com/1200x630/?{carousel_keywords}"
+            logger.info(f"✓ Generated carousel PNG, using Unsplash URL for LinkedIn")
             updated = True
         
-        # Infographic posts
+        # Infographic posts - generate PNG for reference but use Unsplash URL for LinkedIn
         elif "Infographic" in post_type:
             logger.info("Processing infographic post...")
             title, data_points = parse_infographic_data(content)
             logger.debug(f"Found {len(data_points)} data points")
             image_path = create_infographic_image(title, data_points)
             
-            post["image_url"] = f"file://{os.path.abspath(image_path)}"
+            # Store generated image path for reference (GitHub Actions output)
+            post["generated_image"] = image_path
+            post["is_generated"] = True
+            
+            # BUT: Use Unsplash URL for LinkedIn (Zernio doesn't support inline base64)
+            # Extract keywords from infographic title
+            infograph_keywords = "data,analytics,insights,statistics,visualization"
+            post["image_url"] = f"https://source.unsplash.com/1200x630/?{infograph_keywords}"
+            logger.info(f"✓ Generated infographic PNG, using Unsplash URL for LinkedIn")
             post["generated_image"] = image_path
             post["is_generated"] = True
             updated = True

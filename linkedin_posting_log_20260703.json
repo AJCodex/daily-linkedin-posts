@@ -1,44 +1,52 @@
 {
-  "timestamp": "2026-07-03T19:44:35.386839",
+  "timestamp": "2026-07-03T19:57:44.942617",
   "total": 5,
-  "successful": 3,
+  "successful": 5,
   "posts": [
     {
-      "success": false,
-      "error": "409 Conflict",
-      "stream": 1
-    },
-    {
-      "success": false,
-      "error": "409 Conflict",
-      "stream": 2
+      "success": true,
+      "post_id": "6a47c6daf831e7dde9c73bb0",
+      "stream": 1,
+      "type": "News",
+      "scheduled_for": "2026-07-03T08:00:00.000Z",
+      "has_image": true,
+      "timestamp": "2026-07-03T19:57:40.451583"
     },
     {
       "success": true,
-      "post_id": "6a47c3c751cab415411ac49d",
+      "post_id": "6a47c6ddf831e7dde9c73c2d",
+      "stream": 2,
+      "type": "Tips & Tricks",
+      "scheduled_for": "2026-07-03T16:00:00.000Z",
+      "has_image": true,
+      "timestamp": "2026-07-03T19:57:41.910005"
+    },
+    {
+      "success": true,
+      "post_id": "6a47c6def831e7dde9c73c52",
       "stream": 3,
       "type": "Carousel",
-      "scheduled_for": "2026-07-03T14:14:31.762Z",
+      "scheduled_for": "2026-07-03T14:27:42.712Z",
       "has_image": true,
-      "timestamp": "2026-07-03T19:44:32.293948"
+      "timestamp": "2026-07-03T19:57:43.172991"
     },
     {
       "success": true,
-      "post_id": "6a47c3c90b54d2b7c5791692",
+      "post_id": "6a47c6dff831e7dde9c73c72",
       "stream": 4,
       "type": "Infographic",
-      "scheduled_for": "2026-07-03T14:14:33.589Z",
+      "scheduled_for": "2026-07-03T14:27:43.613Z",
       "has_image": true,
-      "timestamp": "2026-07-03T19:44:34.275373"
+      "timestamp": "2026-07-03T19:57:44.042768"
     },
     {
       "success": true,
-      "post_id": "6a47c3ca51cab415411ac53e",
+      "post_id": "6a47c6e0f831e7dde9c73cb0",
       "stream": 5,
       "type": "Motivation",
-      "scheduled_for": "2026-07-03T14:14:34.914Z",
+      "scheduled_for": "2026-07-03T14:27:44.531Z",
       "has_image": true,
-      "timestamp": "2026-07-03T19:44:35.386839"
+      "timestamp": "2026-07-03T19:57:44.942617"
     }
   ]
 }

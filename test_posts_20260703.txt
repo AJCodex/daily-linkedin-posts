@@ -18,17 +18,17 @@ This advancement paves the way for more sustainable and cost-effective AI deploy
 STREAM: 2
 TYPE: Tips & Tricks
 ================================================================================
-💡 Essential Tips for Optimizing Your LLM Prompting
+💡 Essential Tips for Optimizing Your RAG Pipeline
 
 These proven techniques will dramatically improve performance:
 
-1️⃣ Use few-shot examples
-2️⃣ Be explicit about constraints
-3️⃣ Structure with sections
-4️⃣ Include reasoning steps
-5️⃣ Validate outputs
+1️⃣ Chunk wisely
+2️⃣ Rerank ruthlessly
+3️⃣ Cache embeddings
+4️⃣ Hybrid search
+5️⃣ Monitor hallucination
 
-Pro tip: Start with #1 and #3. They give 80% of the value with 20% of the effort.
+Pro tip: Start with #1 and #4. They give 80% of the value with 20% of the effort.
 
 #Tips #Optimization #BestPractices #Engineering #TechCommunity
 ================================================================================
@@ -70,27 +70,30 @@ Test, measure, refine. Small changes can have big impacts.
 STREAM: 4
 TYPE: Infographic
 ================================================================================
-RAG vs Fine-Tuning Tradeoffs
+LLM Adoption by Industry 2026
 
-Implementation Speed: 95
-Cost Efficiency: 87
-Knowledge Updates: 92
-Customization: 65
-Accuracy: 78
+Tech/Software: 89
+Finance: 76
+Healthcare: 68
+Retail: 54
+Manufacturing: 42
+Government: 35
 ================================================================================
 
 STREAM: 5
 TYPE: Motivation
 ================================================================================
-🌟 The Compound Effect of Small Wins in Tech
+💪 Building in Public
 
-Every commit matters. Every bug fix matters. Every documentation update matters.
+Sharing your journey isn't weakness—it's connection.
 
-Alone, each seems insignificant. But over months and years, these small wins compound exponentially.
+When you share struggles, someone learns they're not alone.
+When you share wins, someone gets inspired to try.
+When you share failures, someone avoids your mistakes.
 
-The engineer who ships 10 tiny improvements a week outpaces the engineer who waits for the perfect solution.
+The best engineers are builders AND teachers.
 
-Focus on consistency, not perfection. 🚀
+Your code matters. Your voice matters. 🎯
 
 #EngineeringMindset #DevCulture #Growth #TechCommunity #Inspiration
 ================================================================================
