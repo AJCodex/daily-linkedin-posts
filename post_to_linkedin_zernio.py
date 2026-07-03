@@ -73,8 +73,16 @@ def extract_posts_from_file():
 # Post to LinkedIn via Zernio
 # ============================================================================
 
-def post_to_linkedin(post_text, post_type):
-    """Post a single post to LinkedIn via Zernio API."""
+def post_to_linkedin(post_text, post_type, schedule_hour=None):
+    """
+    Post a single post to LinkedIn via Zernio API.
+    
+    Args:
+        post_text: Content to post
+        post_type: Type of post (News, Tips, etc.)
+        schedule_hour: Hour to schedule (0-23). None = post now
+                      8 = 8 AM, 16 = 4 PM
+    """
     
     headers = {
         "Authorization": f"Bearer {ZERNIO_API_KEY}",
@@ -82,20 +90,37 @@ def post_to_linkedin(post_text, post_type):
         "User-Agent": "Daily LinkedIn Posts Pipeline"
     }
     
+    # Build platform config with or without scheduling
+    platform_config = {
+        "platform": "linkedin",
+        "accountId": LINKEDIN_ACCOUNT_ID,
+    }
+    
+    # Add scheduling if specified
+    if schedule_hour is not None:
+        # Calculate scheduled time for today
+        today = datetime.date.today()
+        scheduled_time = datetime.datetime.combine(
+            today, 
+            datetime.time(schedule_hour, 0, 0)
+        )
+        # Convert to ISO format (UTC)
+        platform_config["scheduledFor"] = scheduled_time.isoformat() + "Z"
+        platform_config["publishNow"] = False
+        publish_status = f"scheduled for {schedule_hour}:00"
+    else:
+        platform_config["publishNow"] = True
+        publish_status = "posting now"
+    
     # Zernio API format with platforms array
     payload = {
         "content": post_text,
-        "platforms": [
-            {
-                "platform": "linkedin",
-                "accountId": LINKEDIN_ACCOUNT_ID,
-                "publishNow": True
-            }
-        ]
+        "platforms": [platform_config]
     }
     
     try:
         print(f"\n📤 Posting to LinkedIn ({post_type})...")
+        print(f"   Status: {publish_status}")
         
         response = requests.post(ZERNIO_ENDPOINT, headers=headers, json=payload)
         response.raise_for_status()
@@ -103,13 +128,17 @@ def post_to_linkedin(post_text, post_type):
         result = response.json()
         
         # Check for successful response
-        if "id" in result or "_id" in result:
-            post_id = result.get("id") or result.get("_id")
+        if "post" in result and "_id" in result["post"]:
+            post_id = result["post"]["_id"]
+            scheduled_for = result.get("post", {}).get("scheduledFor", "")
             print(f"✅ Posted successfully! ID: {post_id}")
+            if scheduled_for:
+                print(f"   Scheduled for: {scheduled_for}")
             return {
                 "success": True,
                 "post_id": post_id,
                 "type": post_type,
+                "scheduled_for": scheduled_for,
                 "timestamp": datetime.datetime.now().isoformat()
             }
         else:
@@ -142,7 +171,7 @@ def post_to_linkedin(post_text, post_type):
 
 def main():
     print("=" * 60)
-    print("Posting to LinkedIn via Zernio")
+    print("Posting to LinkedIn via Zernio (with scheduling)")
     print("=" * 60)
     print()
     
@@ -153,10 +182,14 @@ def main():
         print("❌ No posts to post")
         return
     
-    # Post each one
+    # Schedule times: 8 AM and 4 PM
+    schedule_times = [8, 16]  # 8 AM, 4 PM
+    
+    # Post each one with scheduled time
     results = []
-    for post in posts:
-        result = post_to_linkedin(post["text"], post["type"])
+    for i, post in enumerate(posts):
+        schedule_hour = schedule_times[i] if i < len(schedule_times) else None
+        result = post_to_linkedin(post["text"], post["type"], schedule_hour=schedule_hour)
         results.append(result)
     
     # Summary
@@ -168,9 +201,15 @@ def main():
     successful = sum(1 for r in results if r["success"])
     failed = len(results) - successful
     
-    print(f"✅ Posted: {successful}/{len(results)}")
+    print(f"✅ Scheduled/Posted: {successful}/{len(results)}")
     if failed > 0:
         print(f"❌ Failed: {failed}/{len(results)}")
+    
+    print("\n📅 Schedule:")
+    for i, result in enumerate(results):
+        if result["success"]:
+            scheduled = result.get("scheduled_for", "Now")
+            print(f"   Post {i+1} ({result['type']}): {scheduled}")
     
     # Save posting log
     log_file = f"linkedin_posting_log_{datetime.date.today().strftime('%Y%m%d')}.json"
@@ -180,7 +219,7 @@ def main():
     print(f"\n📝 Posting log saved: {log_file}")
     
     if successful == len(results):
-        print("\n✅ All posts posted successfully!")
+        print("\n✅ All posts scheduled successfully!")
     else:
         print(f"\n⚠️  {failed} posts failed - check log for details")
 
