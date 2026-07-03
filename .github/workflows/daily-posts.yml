@@ -17,12 +17,16 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.10'
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Install Playwright (for carousel rendering)
+      run: |
+        playwright install chromium
     
     - name: Create output directory
       run: mkdir -p output/posts_$(date +%Y%m%d)/logs
@@ -33,67 +37,40 @@ jobs:
         echo "ZERNIO_API_KEY=${{ secrets.ZERNIO_API_KEY }}" >> .env
         echo "LINKEDIN_ACCOUNT_ID=${{ secrets.LINKEDIN_ACCOUNT_ID }}" >> .env
         echo "ZERNIO_BASE_URL=https://zernio.com/api/v1" >> .env
+        echo "LOG_LEVEL=INFO" >> .env
         echo "✅ Environment configured"
-        if [ -z "${{ secrets.OPENROUTER_API_KEY }}" ]; then echo "⚠️ WARNING: OPENROUTER_API_KEY not set"; fi
-    
-    - name: Fetch news
-      run: python3 fetch_ai_news_rss.py 2>&1 || echo "News fetch failed (non-critical)"
-      continue-on-error: true
     
     - name: Debug environment
       run: |
         echo "📁 Current directory: $(pwd)"
-        echo "📂 Files in directory:"
-        ls -la | head -20
-        echo "🐍 Python version:"
-        python3 --version
-        echo "📦 Installed packages:"
-        pip list | grep -E "requests|openpyxl|python-dotenv"
+        echo "🐍 Python version: $(python --version)"
+        echo "📂 Project structure:"
+        ls -la src/ config/ 2>/dev/null || echo "Directory check failed"
       continue-on-error: true
     
-    - name: Generate posts
+    - name: Run LinkedIn Posts Pipeline
       run: |
-        echo "▶️  Starting post generation..."
-        python3 generate_posts_2post_model.py 2>&1 && echo "✅ Posts generated" || (echo "⚠️  API failed, using demo..." && python3 generate_posts_2post_model_demo.py && echo "✅ Demo posts created")
-        echo "📄 Generated files:"
-        ls -la linkedin_posts_* 2>/dev/null || echo "No posts found"
-      continue-on-error: true
+        echo "🚀 Starting LinkedIn Posts Pipeline..."
+        python main.py
+      env:
+        ZERNIO_API_KEY: ${{ secrets.ZERNIO_API_KEY }}
+        LINKEDIN_ACCOUNT_ID: ${{ secrets.LINKEDIN_ACCOUNT_ID }}
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        LOG_LEVEL: INFO
     
-    - name: Ensure posts exist (fallback)
+    - name: Check generated outputs
       run: |
-        TODAY=$(date +%Y%m%d)
-        if [ ! -f linkedin_posts_${TODAY}.txt ]; then
-          echo "❌ No posts file found, creating emergency fallback..."
-          python3 generate_posts_2post_model_demo.py
-          echo "✅ Fallback posts created"
-        else
-          echo "✅ Posts file exists: linkedin_posts_${TODAY}.txt"
-        fi
-      continue-on-error: false
-    
-    - name: Attach images
-      run: python3 attach_images_to_posts.py
-      continue-on-error: true
-    
-    - name: Generate visual posts (Phase 2 & 3)
-      run: |
-        echo "🎨 Generating carousel and infographic images..."
-        python3 generate_visual_posts.py
-      continue-on-error: true
-    
-    - name: Update Excel
-      run: python3 update_post_history.py
-      continue-on-error: true
-    
-    - name: Post to LinkedIn
-      run: python3 post_to_linkedin_zernio.py
+        echo "📂 Generated files:"
+        ls -la output/posts_$(date +%Y%m%d)/ 2>/dev/null || echo "Output directory not found"
+        echo "📋 Logs:"
+        ls -la logs/ 2>/dev/null || echo "No logs directory"
       continue-on-error: true
     
     - name: Commit and push outputs
       run: |
         git config user.name "linkedin-bot"
         git config user.email "bot@github.com"
-        git add linkedin_posts_*.txt post_history.xlsx output/ post-rotation-log.json ai_news_data.json 2>/dev/null || true
+        git add output/ logs/ 2>/dev/null || true
         git commit -m "Daily posts: $(date +%Y-%m-%d)" || echo "No changes to commit"
         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
         git push origin main || echo "Push failed (non-critical)"
@@ -101,19 +78,25 @@ jobs:
     
     - name: Job Summary
       run: |
-        echo "✅ Daily LinkedIn posts generated and posted successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Daily LinkedIn posts pipeline executed!" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Pipeline Steps Completed:**" >> $GITHUB_STEP_SUMMARY
-        echo "1. ✅ Fetched Microsoft AI news" >> $GITHUB_STEP_SUMMARY
-        echo "2. ✅ Generated 2 posts with Gemma-4 (free model)" >> $GITHUB_STEP_SUMMARY
-        echo "3. ✅ Attached AI-contextual Unsplash images" >> $GITHUB_STEP_SUMMARY
-        echo "4. ✅ Generated carousel & infographic visuals (Phase 2 & 3)" >> $GITHUB_STEP_SUMMARY
-        echo "5. ✅ Updated Excel tracking" >> $GITHUB_STEP_SUMMARY
-        echo "6. ✅ Posted multimedia to LinkedIn via Zernio" >> $GITHUB_STEP_SUMMARY
+        echo "**Pipeline Stages Completed:**" >> $GITHUB_STEP_SUMMARY
+        echo "1. ✅ Stage 1: Generated 5 realistic test posts (News, Tips, Carousel, Infographic, Motivation)" >> $GITHUB_STEP_SUMMARY
+        echo "2. ✅ Stage 2: Attached AI-contextual Unsplash images to posts" >> $GITHUB_STEP_SUMMARY
+        echo "3. ✅ Stage 3: Generated professional visuals (carousel PNG + infographic)" >> $GITHUB_STEP_SUMMARY
+        echo "4. ✅ Stage 4: Posted to LinkedIn via Zernio API with scheduling" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Generated Files:**" >> $GITHUB_STEP_SUMMARY
-        echo "- \`linkedin_posts_$(date +%Y%m%d).txt\` — Daily posts" >> $GITHUB_STEP_SUMMARY
-        echo "- \`linkedin_posting_log_$(date +%Y%m%d).json\` — LinkedIn posting results" >> $GITHUB_STEP_SUMMARY
-        echo "- \`post_history.xlsx\` — Excel tracking" >> $GITHUB_STEP_SUMMARY
+        echo "**Generated Files (in output/ directory):**" >> $GITHUB_STEP_SUMMARY
+        echo "- \`test_posts_YYYYMMDD.txt\` — All 5 post types" >> $GITHUB_STEP_SUMMARY
+        echo "- \`posts_with_images.json\` — Posts with image URLs" >> $GITHUB_STEP_SUMMARY
+        echo "- \`carousel_*.png\` — Carousel image (1200×1500px)" >> $GITHUB_STEP_SUMMARY
+        echo "- \`infographic_*.png\` — Infographic chart (1200×1800px)" >> $GITHUB_STEP_SUMMARY
+        echo "- \`linkedin_posting_log_YYYYMMDD.json\` — LinkedIn posting results & IDs" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "🎉 **Your LinkedIn posts are now live!**" >> $GITHUB_STEP_SUMMARY
+        echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Entry point: \`main.py\` (orchestrates all 4 stages)" >> $GITHUB_STEP_SUMMARY
+        echo "- Core scripts: \`src/\` directory (modular, production-ready)" >> $GITHUB_STEP_SUMMARY
+        echo "- Shared config: \`config/\` directory (constants, logging, utilities)" >> $GITHUB_STEP_SUMMARY
+        echo "- Logging: \`logs/linkedin_pipeline_YYYYMMDD.log\` (structured, no secrets)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🎉 **Your LinkedIn posts are now live!** Check the logs for details.">> $GITHUB_STEP_SUMMARY
