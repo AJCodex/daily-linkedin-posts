@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Post generated LinkedIn posts to LinkedIn via Zernio API with multimedia support.
 Reads from posts_with_images.json and posts each one with image attachments.
@@ -55,16 +56,12 @@ def extract_posts_from_file():
             for post in posts_data:
                 image_url = post.get("image_url", "")
                 
-                # Handle generated images (file:// URLs) - use Unsplash instead
+                # Handle generated images (file:// URLs) - convert to GitHub raw URLs
                 if image_url.startswith("file://"):
-                    # For generated carousel/infographic, use context-specific Unsplash images
-                    post_type = post.get("type", "")
-                    if "Carousel" in post_type:
-                        image_url = "https://source.unsplash.com/1200x630/?presentation,data,strategy,slides"
-                    elif "Infographic" in post_type:
-                        image_url = "https://source.unsplash.com/1200x630/?infographic,data,visualization,statistics"
-                    else:
-                        image_url = post.get("image_url")  # Keep original Unsplash URL
+                    # Extract filename from file:// path
+                    filename = image_url.split("\\")[-1]  # Get last part after backslash
+                    # Convert to GitHub raw URL
+                    image_url = f"https://raw.githubusercontent.com/AJCodex/daily-linkedin-posts/main/images/{filename}"
                 
                 posts.append({
                     "stream": post.get("stream"),
@@ -84,7 +81,7 @@ def extract_posts_from_file():
         print(f"📖 Reading posts from: {text_file}")
         
         with open(text_file, 'r', encoding='utf-8') as f:
-        content = f.read()
+            content = f.read()
     
     # Parse posts using stream markers
     stream_pattern = r'==+\s*STREAM (\d+) — (.+?)\s*==+(.+?)(?=={60}|$)'

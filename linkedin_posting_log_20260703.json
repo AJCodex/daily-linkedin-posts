@@ -1,112 +1,40 @@
 [
   {
-    "success": true,
-    "response": {
-      "post": {
-        "userId": "6a474c93da722a8159ee83f2",
-        "title": "",
-        "content": "🚀 **Azure AI Search Now Supports Multi-Turn Conversations**\n\nMicrosoft just launched multi-turn conversation support in Azure AI Search, letting you build conversational AI apps that remember context across interactions. \n\nThis means your search-powered apps can now:\n- Remember previous queries in a conversation\n- Provide context-aware follow-ups\n- Deliver more relevant results based on conversation history\n\nWhy it matters: Conversational AI is becoming the default UX. This closes the gap between simple search and truly intelligent assistants.\n\n👉 If you're building with Azure AI, this changes your architecture options. What's your current approach to context management?\n\n\nWord count: 100\nFormat: Text Post",
-        "mediaItems": [],
-        "platforms": [
-          {
-            "platform": "linkedin",
-            "accountId": {
-              "_id": "6a474cbf9d9472faae60f1a3",
-              "platform": "linkedin",
-              "profileId": "6a474c93da722a8159ee83fa",
-              "displayName": "Abhinav Jain",
-              "isActive": true,
-              "profilePicture": "https://media.licdn.com/dms/image/v2/D5603AQEO8T_8p2WMvg/profile-displayphoto-scale_100_100/B56ZlX2qwYI8Ag-/0/1758115573290?e=1784764800&v=beta&t=CxC1Xtd20CO5XZvgYOm2rA5P_hD-jBXRh_rKpiHXqB0",
-              "username": "Abhinav Jain"
-            },
-            "customMedia": [],
-            "scheduledFor": "2026-07-03T05:54:47.270Z",
-            "platformSpecificData": {},
-            "status": "pending",
-            "publishAttempts": 0,
-            "_id": "6a474ea7ba6f07d4b7011547"
-          }
-        ],
-        "scheduledFor": "2026-07-03T05:54:47.270Z",
-        "timezone": "UTC",
-        "status": "draft",
-        "tags": [],
-        "hashtags": [],
-        "mentions": [],
-        "visibility": "public",
-        "crosspostingEnabled": true,
-        "metadata": {},
-        "publishAttempts": 0,
-        "recycling": {
-          "enabled": false,
-          "gapFreq": "month",
-          "recycleCount": 0,
-          "contentVariations": [],
-          "contentVariationIndex": 0
-        },
-        "_id": "6a474ea7ba6f07d4b7011546",
-        "createdAt": "2026-07-03T05:54:47.274Z",
-        "updatedAt": "2026-07-03T05:54:47.274Z",
-        "__v": 0
-      },
-      "message": "Draft saved successfully"
-    },
+    "success": false,
+    "error": "409 Client Error: Conflict for url: https://zernio.com/api/v1/posts",
     "type": "News",
-    "timestamp": "2026-07-03T11:24:50.435921"
+    "has_image": true,
+    "timestamp": "2026-07-03T18:55:21.268830"
+  },
+  {
+    "success": false,
+    "error": "409 Client Error: Conflict for url: https://zernio.com/api/v1/posts",
+    "type": "Tips & Tricks",
+    "has_image": true,
+    "timestamp": "2026-07-03T18:55:22.289535"
   },
   {
     "success": true,
-    "response": {
-      "post": {
-        "userId": "6a474c93da722a8159ee83f2",
-        "title": "",
-        "content": "💡 **Use Search Indexes to Speed Up RAG by 10x**\n\nMost RAG implementations index everything—documents, PDFs, web pages. But here's what I learned:\n\nOnly index what you'll actually query.\n\nIf you're building customer support RAG, don't index your entire product documentation. Index only:\n- FAQs (most common questions)\n- Recent bug fixes\n- Known issues\n- API references\n\nThis cuts your search latency from 2-3 seconds to 200-400ms. It also reduces API costs by 80% because you're searching smaller indexes.\n\nThe tradeoff: Occasionally, users ask about something not indexed. But being fast 95% of the time beats being slow 100% of the time.\n\n👉 What's in your RAG index? Are you being selective or indexing everything?\n\nWord count: 116\nFormat: Text Post",
-        "mediaItems": [],
-        "platforms": [
-          {
-            "platform": "linkedin",
-            "accountId": {
-              "_id": "6a474cbf9d9472faae60f1a3",
-              "platform": "linkedin",
-              "profileId": "6a474c93da722a8159ee83fa",
-              "displayName": "Abhinav Jain",
-              "isActive": true,
-              "profilePicture": "https://media.licdn.com/dms/image/v2/D5603AQEO8T_8p2WMvg/profile-displayphoto-scale_100_100/B56ZlX2qwYI8Ag-/0/1758115573290?e=1784764800&v=beta&t=CxC1Xtd20CO5XZvgYOm2rA5P_hD-jBXRh_rKpiHXqB0",
-              "username": "Abhinav Jain"
-            },
-            "customMedia": [],
-            "scheduledFor": "2026-07-03T05:54:52.103Z",
-            "platformSpecificData": {},
-            "status": "pending",
-            "publishAttempts": 0,
-            "_id": "6a474eac0eb9c971bccced40"
-          }
-        ],
-        "scheduledFor": "2026-07-03T05:54:52.103Z",
-        "timezone": "UTC",
-        "status": "draft",
-        "tags": [],
-        "hashtags": [],
-        "mentions": [],
-        "visibility": "public",
-        "crosspostingEnabled": true,
-        "metadata": {},
-        "publishAttempts": 0,
-        "recycling": {
-          "enabled": false,
-          "gapFreq": "month",
-          "recycleCount": 0,
-          "contentVariations": [],
-          "contentVariationIndex": 0
-        },
-        "_id": "6a474eac0eb9c971bccced3f",
-        "createdAt": "2026-07-03T05:54:52.128Z",
-        "updatedAt": "2026-07-03T05:54:52.128Z",
-        "__v": 0
-      },
-      "message": "Draft saved successfully"
-    },
-    "type": "Tips & Tricks",
-    "timestamp": "2026-07-03T11:24:55.256542"
+    "post_id": "6a47b842ad117616c5e17090",
+    "type": "Carousel",
+    "scheduled_for": "2026-07-03T13:25:22.972Z",
+    "has_image": true,
+    "timestamp": "2026-07-03T18:55:23.261984"
+  },
+  {
+    "success": true,
+    "post_id": "6a47b844b69a5bfef4095b25",
+    "type": "Infographic",
+    "scheduled_for": "2026-07-03T13:25:24.177Z",
+    "has_image": true,
+    "timestamp": "2026-07-03T18:55:24.453496"
+  },
+  {
+    "success": true,
+    "post_id": "6a47b845bbf33cc6a1be8222",
+    "type": "Motivation",
+    "scheduled_for": "2026-07-03T13:25:25.093Z",
+    "has_image": true,
+    "timestamp": "2026-07-03T18:55:25.373651"
   }
 ]

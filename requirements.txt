@@ -1,4 +1,14 @@
-openpyxl==3.1.0
+# LinkedIn Daily Posts Pipeline - Dependencies
+# Python 3.10+
+
+# Core
 requests==2.31.0
 python-dotenv==1.0.0
+
+# Image & Visualization
 Pillow==10.0.0
+matplotlib==3.8.3
+playwright==1.42.0
+
+# Optional
+openpyxl==3.1.0  # For post history tracking

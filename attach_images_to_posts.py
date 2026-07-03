@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Fetch news-related images and attach to LinkedIn posts.
 
