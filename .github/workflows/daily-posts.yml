@@ -64,17 +64,7 @@ jobs:
         TODAY=$(date +%Y%m%d)
         if [ ! -f linkedin_posts_${TODAY}.txt ]; then
           echo "❌ No posts file found, creating emergency fallback..."
-          cat > linkedin_posts_${TODAY}.txt << 'EOF'
-==================================================
-STREAM 1 — News
-==================================================
-Microsoft Azure AI continues advancing enterprise AI capabilities.
-
-==================================================
-STREAM 2 — Tips & Tricks
-==================================================
-Best practice: Focus on data quality first, scale later.
-EOF
+          python3 generate_posts_2post_model_demo.py
           echo "✅ Fallback posts created"
         else
           echo "✅ Posts file exists: linkedin_posts_${TODAY}.txt"
