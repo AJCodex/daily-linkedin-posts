@@ -150,15 +150,16 @@ def extract_posts_from_file() -> list:
             content = f.read()
         
         # Parse posts using stream markers
-        pattern = r"STREAM (\d+) — (.+?)\n=+\n(.+?)(?:={60}|$)"
+        # Format: STREAM: 1\nTYPE: News\n====\n[content]\n====
+        pattern = r"STREAM: (\d+)\nTYPE: (.+?)\n=+\n(.+?)(?:={60,}|$)"
         matches = re.findall(pattern, content, re.DOTALL)
         
         posts = []
-        for stream, post_type, content in matches:
+        for stream, post_type, post_content in matches:
             posts.append({
                 "stream": int(stream),
                 "type": post_type.strip(),
-                "content": content.strip()
+                "content": post_content.strip()
             })
         
         logger.info(f"Extracted {len(posts)} posts from {file_path}")
