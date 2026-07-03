@@ -165,11 +165,13 @@ OUTPUT FORMAT:
 [Post text here]
 
 Source: [URL]
-Word count: [N]
 """
     
     post = call_llm(prompt)
-    return post.strip()
+    post = post.replace('**', '').replace('*', '')
+    lines = post.split('\n')
+    cleaned_lines = [l for l in lines if not l.strip().startswith('Word count:') and not l.strip().startswith('Format:') and not l.strip().startswith('Source:')]
+    return '\n'.join(cleaned_lines).strip()
 
 def generate_tips_post():
     """Generate a Tips & Tricks post."""
@@ -191,12 +193,13 @@ DO NOT include "Post 2:" or any post labels. Write the post content directly.
 
 OUTPUT FORMAT:
 [Post text here]
-
-Word count: [N]
 """
     
     post = call_llm(prompt)
-    return post.strip()
+    post = post.replace('**', '').replace('*', '')
+    lines = post.split('\n')
+    cleaned_lines = [l for l in lines if not l.strip().startswith('Word count:') and not l.strip().startswith('Format:')]
+    return '\n'.join(cleaned_lines).strip()
 
 def generate_carousel_post():
     """Generate a Carousel post (7 slides + caption)."""
@@ -224,12 +227,13 @@ OUTPUT FORMAT (clearly separated):
 
 === CAPTION ===
 [Caption text]
-
-Word count: [N]
 """
     
     post = call_llm(prompt)
-    return post.strip()
+    post = post.replace('**', '').replace('*', '')
+    lines = post.split('\n')
+    cleaned_lines = [l for l in lines if not l.strip().startswith('Word count:') and not l.strip().startswith('Format:')]
+    return '\n'.join(cleaned_lines).strip()
 
 def generate_infographic_post():
     """Generate an Infographic post (PNG + caption)."""
@@ -266,12 +270,13 @@ OUTPUT FORMAT:
 1. [Item]: [Number/Percentage]
 2. [Item]: [Number/Percentage]
 [... etc]
-
-Word count: [N]
 """
     
     post = call_llm(prompt)
-    return post.strip()
+    post = post.replace('**', '').replace('*', '')
+    lines = post.split('\n')
+    cleaned_lines = [l for l in lines if not l.strip().startswith('Word count:') and not l.strip().startswith('Format:')]
+    return '\n'.join(cleaned_lines).strip()
 
 def generate_motivation_post():
     """Generate a Motivation/Productivity post."""
@@ -293,12 +298,13 @@ DO NOT include "Post 5:" or any post labels. Write the post content directly.
 
 OUTPUT FORMAT:
 [Post text here]
-
-Word count: [N]
 """
     
     post = call_llm(prompt)
-    return post.strip()
+    post = post.replace('**', '').replace('*', '')
+    lines = post.split('\n')
+    cleaned_lines = [l for l in lines if not l.strip().startswith('Word count:') and not l.strip().startswith('Format:')]
+    return '\n'.join(cleaned_lines).strip()
 
 # ============================================================================
 # Main Pipeline

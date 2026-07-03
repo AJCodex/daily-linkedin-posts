@@ -2,58 +2,92 @@
 """
 Fetch news-related images and attach to LinkedIn posts.
 
-For each post, downloads a relevant image from Unsplash or similar free service.
-Saves images locally and creates post with image reference.
+For each post, uses AI to generate image search keywords, then downloads 
+a relevant image from Unsplash. Saves images locally and creates post metadata.
 """
 
 import json
 import os
 import re
 from datetime import datetime
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# LLM Configuration for image keyword generation
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+API_URL = "https://api.openrouter.ai/api/v1/chat/completions"
+MODEL = "google/gemma-4-31b-it:free"
+
+def generate_image_keywords(post_content, post_type):
+    """
+    Use LLM to generate image search keywords based on post content.
+    This makes images AI-contextual to the post topic.
+    """
+    
+    prompt = f"""Extract 2-3 image search keywords from this LinkedIn post about {post_type}.
+Keep each keyword 1-3 words, focused on visual concepts.
+Return only the keywords, comma-separated, no explanation.
+
+Post:
+{post_content[:500]}
+
+Keywords:"""
+    
+    try:
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://github.com/AJCodex/daily-linkedin-posts",
+            "X-Title": "Daily LinkedIn Posts"
+        }
+        
+        payload = {
+            "model": MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7,
+            "max_tokens": 100
+        }
+        
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+        
+        if "choices" in result and len(result["choices"]) > 0:
+            keywords = result["choices"][0]["message"]["content"].strip()
+            # Clean up and return
+            keywords = re.sub(r'[^a-z0-9\s,-]', '', keywords.lower())
+            return keywords
+    except Exception as e:
+        print(f"  ⚠️  Could not generate keywords: {e}")
+    
+    return None
 
 def fetch_image_for_post(post_content, post_type):
     """
-    Fetch an image URL relevant to the post content.
-    For demo purposes, returns Unsplash URLs matching post themes.
+    Fetch an image URL relevant to the post content using AI-generated keywords.
+    Falls back to type-based defaults if LLM is unavailable.
     """
     
-    # Image search keywords based on post type and content
-    image_keywords = {
-        "News": {
-            "Azure": "https://source.unsplash.com/1200x630/?azure,cloud",
-            "AI": "https://source.unsplash.com/1200x630/?artificial-intelligence,technology",
-            "Search": "https://source.unsplash.com/1200x630/?search,database",
-            "Microsoft": "https://source.unsplash.com/1200x630/?microsoft,cloud"
-        },
-        "Tips & Tricks": {
-            "Tips": "https://source.unsplash.com/1200x630/?tips,learning",
-            "RAG": "https://source.unsplash.com/1200x630/?data,search",
-            "Index": "https://source.unsplash.com/1200x630/?optimization,speed"
-        },
-        "Carousel": {
-            "Carousel": "https://source.unsplash.com/1200x630/?presentation,slides"
-        },
-        "Infographic": {
-            "Data": "https://source.unsplash.com/1200x630/?infographic,data,statistics"
-        }
-    }
+    # Try to generate AI keywords first
+    keywords = generate_image_keywords(post_content, post_type)
     
-    # Try to match keywords in post content
-    for keyword, url_dict in image_keywords.items():
-        if keyword.lower() in post_type.lower():
-            for key, url in url_dict.items():
-                if key.lower() in post_content.lower():
-                    return url
+    if keywords:
+        # Use AI-generated keywords to fetch image
+        keyword_list = [k.strip() for k in keywords.split(',') if k.strip()]
+        search_term = keyword_list[0] if keyword_list else "technology"
+        image_url = f"https://source.unsplash.com/1200x630/?{search_term},professional"
+        return image_url
     
-    # Default image for post type
+    # Fallback: Static keywords based on post type
     defaults = {
-        "News": "https://source.unsplash.com/1200x630/?technology,news",
-        "Tips & Tricks": "https://source.unsplash.com/1200x630/?tips,productivity",
-        "Carousel": "https://source.unsplash.com/1200x630/?presentation",
-        "Infographic": "https://source.unsplash.com/1200x630/?data,statistics"
+        "News": "https://source.unsplash.com/1200x630/?technology,innovation,blue",
+        "Tips & Tricks": "https://source.unsplash.com/1200x630/?tips,learning,productivity",
+        "Carousel": "https://source.unsplash.com/1200x630/?presentation,data,strategy",
+        "Infographic": "https://source.unsplash.com/1200x630/?data,statistics,growth"
     }
     
-    return defaults.get(post_type, "https://source.unsplash.com/1200x630/?business")
+    return defaults.get(post_type, "https://source.unsplash.com/1200x630/?business,professional")
 
 def create_post_with_image(stream_num, post_type, post_content, source, image_url):
     """
