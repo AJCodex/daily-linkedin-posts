@@ -6,7 +6,7 @@ Replaces print() statements with proper logging infrastructure.
 import logging
 import logging.handlers
 import os
-from config.constants import LOG_FILE, LOG_LEVEL, LOG_FORMAT, LOG_DATE_FORMAT
+from .constants import LOG_FILE, LOG_LEVEL, LOG_FORMAT, LOG_DATE_FORMAT
 
 
 def setup_logging(name: str, log_file: str = LOG_FILE) -> logging.Logger:

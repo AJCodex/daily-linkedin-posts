@@ -12,10 +12,17 @@ Security:
   - Error handling with retries
 """
 
+import sys
 import json
 import os
 import re
 from datetime import datetime
+
+# Add project root to Python path (for GitHub Actions)
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from config.logger import get_logger
 from config.utils import api_request_with_retry, safe_json_load, validate_api_key
 from config.constants import (

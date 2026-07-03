@@ -6,8 +6,8 @@ Provides reusable functions for robust API interactions.
 import requests
 import time
 from typing import Optional, Dict, Any
-from config.logger import get_logger
-from config.constants import MAX_RETRIES, INITIAL_RETRY_DELAY, EXPONENTIAL_BASE
+from .logger import get_logger
+from .constants import MAX_RETRIES, INITIAL_RETRY_DELAY, EXPONENTIAL_BASE
 
 logger = get_logger(__name__)
 

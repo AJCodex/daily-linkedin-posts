@@ -11,10 +11,17 @@ Security:
   - Retries with exponential backoff
 """
 
+import sys
 import os
 import json
 import datetime
 import re
+
+# Add project root to Python path (for GitHub Actions)
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from config.logger import get_logger
 from config.utils import api_request_with_retry, validate_api_key, validate_url, safe_json_load
 from config.constants import (

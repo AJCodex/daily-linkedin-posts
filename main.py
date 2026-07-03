@@ -20,9 +20,15 @@ Usage:
 """
 
 import sys
+import os
 import subprocess
 import datetime
-import os
+
+# Add project root to Python path (for GitHub Actions)
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from config.logger import get_logger
 
 logger = get_logger(__name__)
