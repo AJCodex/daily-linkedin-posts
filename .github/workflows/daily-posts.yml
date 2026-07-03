@@ -75,6 +75,12 @@ jobs:
       run: python3 attach_images_to_posts.py
       continue-on-error: true
     
+    - name: Generate visual posts (Phase 2 & 3)
+      run: |
+        echo "🎨 Generating carousel and infographic images..."
+        python3 generate_visual_posts.py
+      continue-on-error: true
+    
     - name: Update Excel
       run: python3 update_post_history.py
       continue-on-error: true
@@ -100,9 +106,10 @@ jobs:
         echo "**Pipeline Steps Completed:**" >> $GITHUB_STEP_SUMMARY
         echo "1. ✅ Fetched Microsoft AI news" >> $GITHUB_STEP_SUMMARY
         echo "2. ✅ Generated 2 posts with Gemma-4 (free model)" >> $GITHUB_STEP_SUMMARY
-        echo "3. ✅ Attached Unsplash images" >> $GITHUB_STEP_SUMMARY
-        echo "4. ✅ Updated Excel tracking" >> $GITHUB_STEP_SUMMARY
-        echo "5. ✅ Posted to LinkedIn via Zernio" >> $GITHUB_STEP_SUMMARY
+        echo "3. ✅ Attached AI-contextual Unsplash images" >> $GITHUB_STEP_SUMMARY
+        echo "4. ✅ Generated carousel & infographic visuals (Phase 2 & 3)" >> $GITHUB_STEP_SUMMARY
+        echo "5. ✅ Updated Excel tracking" >> $GITHUB_STEP_SUMMARY
+        echo "6. ✅ Posted multimedia to LinkedIn via Zernio" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Generated Files:**" >> $GITHUB_STEP_SUMMARY
         echo "- \`linkedin_posts_$(date +%Y%m%d).txt\` — Daily posts" >> $GITHUB_STEP_SUMMARY

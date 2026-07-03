@@ -39,6 +39,7 @@ def extract_posts_from_file():
     """
     Extract posts with images from multimedia JSON file.
     Falls back to text file if JSON not found.
+    Handles generated images (file://) by using Unsplash fallback.
     """
     today = datetime.date.today()
     
@@ -52,11 +53,24 @@ def extract_posts_from_file():
             
             posts = []
             for post in posts_data:
+                image_url = post.get("image_url", "")
+                
+                # Handle generated images (file:// URLs) - use Unsplash instead
+                if image_url.startswith("file://"):
+                    # For generated carousel/infographic, use context-specific Unsplash images
+                    post_type = post.get("type", "")
+                    if "Carousel" in post_type:
+                        image_url = "https://source.unsplash.com/1200x630/?presentation,data,strategy,slides"
+                    elif "Infographic" in post_type:
+                        image_url = "https://source.unsplash.com/1200x630/?infographic,data,visualization,statistics"
+                    else:
+                        image_url = post.get("image_url")  # Keep original Unsplash URL
+                
                 posts.append({
                     "stream": post.get("stream"),
                     "type": post.get("type", "Text Post"),
                     "content": post.get("content", ""),
-                    "image_url": post.get("image_url"),  # ✨ NEW: Image URL
+                    "image_url": image_url,
                     "source": post.get("source", "")
                 })
             return posts
