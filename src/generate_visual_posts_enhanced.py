@@ -7,6 +7,7 @@ Uses Matplotlib for infographics and HTML+Playwright for carousel slides.
 This replaces PIL-based generation with professional, GitHub Actions-safe methods.
 """
 
+import sys
 import json
 import os
 import re
@@ -17,11 +18,21 @@ import matplotlib.patches as mpatches
 from PIL import Image
 import textwrap
 
+# Add project root to Python path (for GitHub Actions)
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from config.logger import get_logger
+
+logger = get_logger(__name__)
+
 try:
     from playwright.async_api import async_playwright
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
+    logger.warning("Playwright not available - will use PIL fallback")
 
 # ============================================================================
 # Configuration

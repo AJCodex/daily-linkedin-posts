@@ -125,10 +125,25 @@ def main():
     today = datetime.date.today().strftime("%Y%m%d")
     existing_posts = f"test_posts_{today}.txt"
     
+    # Check if running in GitHub Actions (non-interactive)
+    is_github_actions = os.getenv("GITHUB_ACTIONS", "").lower() == "true"
+    
     skip_generation = False
     if os.path.exists(existing_posts):
-        response = input(f"\n[?] Posts already generated today ({existing_posts}). Skip generation? (y/n): ").strip().lower()
-        skip_generation = (response == 'y')
+        if is_github_actions:
+            # In GitHub Actions, always regenerate (non-interactive)
+            logger.info(f"Found existing posts: {existing_posts}")
+            logger.info("GitHub Actions environment detected - regenerating posts for freshness")
+            skip_generation = False
+        else:
+            # Locally, ask user
+            try:
+                response = input(f"\n[?] Posts already generated today ({existing_posts}). Skip generation? (y/n): ").strip().lower()
+                skip_generation = (response == 'y')
+            except EOFError:
+                # If input fails (non-interactive), regenerate
+                logger.info("Non-interactive mode - regenerating posts")
+                skip_generation = False
     
     # Step 1: Generate test posts
     if not skip_generation:
