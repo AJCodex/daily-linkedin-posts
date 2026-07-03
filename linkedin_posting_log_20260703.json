@@ -1,40 +1,44 @@
-[
-  {
-    "success": false,
-    "error": "409 Client Error: Conflict for url: https://zernio.com/api/v1/posts",
-    "type": "News",
-    "has_image": true,
-    "timestamp": "2026-07-03T18:55:21.268830"
-  },
-  {
-    "success": false,
-    "error": "409 Client Error: Conflict for url: https://zernio.com/api/v1/posts",
-    "type": "Tips & Tricks",
-    "has_image": true,
-    "timestamp": "2026-07-03T18:55:22.289535"
-  },
-  {
-    "success": true,
-    "post_id": "6a47b842ad117616c5e17090",
-    "type": "Carousel",
-    "scheduled_for": "2026-07-03T13:25:22.972Z",
-    "has_image": true,
-    "timestamp": "2026-07-03T18:55:23.261984"
-  },
-  {
-    "success": true,
-    "post_id": "6a47b844b69a5bfef4095b25",
-    "type": "Infographic",
-    "scheduled_for": "2026-07-03T13:25:24.177Z",
-    "has_image": true,
-    "timestamp": "2026-07-03T18:55:24.453496"
-  },
-  {
-    "success": true,
-    "post_id": "6a47b845bbf33cc6a1be8222",
-    "type": "Motivation",
-    "scheduled_for": "2026-07-03T13:25:25.093Z",
-    "has_image": true,
-    "timestamp": "2026-07-03T18:55:25.373651"
-  }
-]
+{
+  "timestamp": "2026-07-03T19:44:35.386839",
+  "total": 5,
+  "successful": 3,
+  "posts": [
+    {
+      "success": false,
+      "error": "409 Conflict",
+      "stream": 1
+    },
+    {
+      "success": false,
+      "error": "409 Conflict",
+      "stream": 2
+    },
+    {
+      "success": true,
+      "post_id": "6a47c3c751cab415411ac49d",
+      "stream": 3,
+      "type": "Carousel",
+      "scheduled_for": "2026-07-03T14:14:31.762Z",
+      "has_image": true,
+      "timestamp": "2026-07-03T19:44:32.293948"
+    },
+    {
+      "success": true,
+      "post_id": "6a47c3c90b54d2b7c5791692",
+      "stream": 4,
+      "type": "Infographic",
+      "scheduled_for": "2026-07-03T14:14:33.589Z",
+      "has_image": true,
+      "timestamp": "2026-07-03T19:44:34.275373"
+    },
+    {
+      "success": true,
+      "post_id": "6a47c3ca51cab415411ac53e",
+      "stream": 5,
+      "type": "Motivation",
+      "scheduled_for": "2026-07-03T14:14:34.914Z",
+      "has_image": true,
+      "timestamp": "2026-07-03T19:44:35.386839"
+    }
+  ]
+}
