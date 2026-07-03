@@ -1,0 +1,44 @@
+# Environment & Secrets
+.env
+.env.local
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific (data that shouldn't be committed)
+linkedin_posts_*.txt
+post_history.xlsx
+post-rotation-log.json
+ai_news_data.json
+logs/*.log
+output/
+*.html
+
+# Keep documentation
+!README.md
+!DEPLOYMENT_GUIDE.md
+!SCHEDULER_QUICKSTART.md
+!DEPLOYMENT_SUMMARY.md
+!PACKAGE_GUIDE.md
+!content-doctrine.md
+!voice-profile.md
