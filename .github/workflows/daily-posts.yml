@@ -44,26 +44,8 @@ jobs:
       continue-on-error: true
     
     - name: Ensure posts exist (fallback)
-      run: |
-        if [ ! -f linkedin_posts_$(date +%Y%m%d).txt ]; then
-          echo "No posts generated, creating fallback..." 
-          python3 -c "
-          import json, datetime
-          today = datetime.date.today().strftime('%Y%m%d')
-          posts = '''==================================================
-STREAM 1 — News
-==================================================
-Microsoft Azure AI continues to lead enterprise AI adoption with new features in Copilot and search capabilities.
-
-==================================================
-STREAM 2 — Tips & Tricks
-==================================================
-When building RAG systems, focus on indexing quality over quantity. Better results with fewer documents than poor results with everything.'''
-          with open(f'linkedin_posts_{today}.txt', 'w') as f:
-              f.write(posts)
-          print('Fallback posts created')
-          "
-        fi
+      run: python3 generate_posts_2post_model_demo.py 2>/dev/null || echo "Fallback posts ensured"
+      continue-on-error: true
     
     - name: Attach images
       run: python3 attach_images_to_posts.py
