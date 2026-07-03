@@ -173,11 +173,11 @@ def main():
         return 1
     
     # Success
-    print_header("✓ PIPELINE COMPLETE!", 80)
-    logger.info("All 5 post types generated and posted to LinkedIn!")
+    print_header("PIPELINE COMPLETE!", 80)
+    logger.info("✅ All 5 post types generated and posted to LinkedIn!")
     logger.info("\nNext steps:")
     logger.info("  • Check LinkedIn for drafted/scheduled posts")
-    logger.info("  • Verify images attached correctly")
+    logger.info("  • Verify images appear in media section")
     logger.info("  • Review scheduled times (8 AM & 4 PM UTC)")
     logger.info("\nLogs available in: logs/")
     

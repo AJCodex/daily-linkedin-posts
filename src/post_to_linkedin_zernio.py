@@ -17,6 +17,7 @@ import json
 import datetime
 import re
 import base64
+from glob import glob
 
 # Add project root to Python path (for GitHub Actions)
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,6 +30,7 @@ from config.constants import (
     TODAY, ZERNIO_BASE_URL, ZERNIO_TIMEOUT_SEC,
     SCHEDULING, POST_TYPES, GITHUB_IMAGES_BASE
 )
+from src.upload_media_zernio import upload_media
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -116,7 +118,7 @@ def extract_posts_from_file() -> list:
             for post in posts_data:
                 image_url = post.get("image_url", "")
                 
-                # SECURITY: Validate URL (skip for data URLs and file:// URLs - use Unsplash only)
+                # SECURITY: Validate URL (external URLs like Unsplash are fine)
                 if image_url and not image_url.startswith("data:") and not validate_url(image_url):
                     logger.warning(f"Invalid image URL, skipping: {image_url[:50]}")
                     image_url = ""
@@ -133,7 +135,7 @@ def extract_posts_from_file() -> list:
             return posts
     
     # Fallback: Read from text file (no images)
-    text_file = f"linkedin_posts_{TODAY}.txt"
+    text_file = f"test_posts_{TODAY}.txt"
     if os.path.exists(text_file):
         logger.info(f"Fallback: Reading from text file: {text_file}")
         
@@ -142,7 +144,7 @@ def extract_posts_from_file() -> list:
                 content = f.read()
             
             # Parse posts using stream markers
-            pattern = r"STREAM (\d+) — (.+?)\n=+\n(.+?)(?:={60}|$)"
+            pattern = r"STREAM: (\d+)\nTYPE: (.+?)\n=+\n(.+?)(?:={60,}|$)"
             matches = re.findall(pattern, content, re.DOTALL)
             
             posts = []
@@ -151,11 +153,10 @@ def extract_posts_from_file() -> list:
                     "stream": int(stream),
                     "type": post_type.strip(),
                     "content": post_content.strip(),
-                    "image_url": "",
-                    "source": "Text File"
+                    "image_url": None
                 })
             
-            logger.info(f"✓ Extracted {len(posts)} posts from text file")
+            logger.info(f"✓ Extracted {len(posts)} posts from text file (no images)")
             return posts
         
         except Exception as e:
@@ -213,20 +214,51 @@ def post_to_linkedin(post_data: dict) -> dict:
         platform_config["publishNow"] = True
         publish_status = "posting now"
     
-    # Build Zernio API payload with image support
-    # Zernio accepts images via "media" array or direct "image" field
+    # Build Zernio API payload
+    # IMPORTANT: Zernio requires media to be uploaded first via presigned URLs
+    # Solution: Upload media files to Zernio, get publicUrl, use in mediaItems
     payload = {
         "content": content,
         "platforms": [platform_config]
     }
     
-    # Add image if present - use Unsplash URLs (Zernio does NOT support inline base64)
-    if image_url:
-        payload["media"] = [{"type": "image", "url": image_url}]
-        image_info = f"with image: {image_url[:50]}..."
-        logger.debug(f"Image URL: {image_url[:80]}")
-    else:
-        image_info = "without image"
+    # Try to find and upload media file for this post
+    image_info = "without media"
+    media_file = None
+    
+    # Look for generated image files (carousel or infographic)
+    if post_type == "Carousel":
+        # Find latest carousel image
+        carousel_files = glob(os.path.join("output/posts_generated_images", f"carousel_{TODAY}_*.png"))
+        if carousel_files:
+            media_file = sorted(carousel_files)[-1]  # Get most recent
+    elif post_type == "Infographic":
+        # Find latest infographic image
+        infographic_files = glob(os.path.join("output/posts_generated_images", f"infographic_{TODAY}_*.png"))
+        if infographic_files:
+            media_file = sorted(infographic_files)[-1]  # Get most recent
+    
+    # Upload media if found and post is immediate (not scheduled)
+    is_published_now = platform_config.get("publishNow", False)
+    
+    if media_file and os.path.exists(media_file) and is_published_now:
+        try:
+            logger.info(f"Uploading media file: {os.path.basename(media_file)}")
+            upload_result = upload_media(media_file, content_type="image/png")
+            
+            if upload_result and upload_result.get("publicUrl"):
+                public_url = upload_result["publicUrl"]
+                payload["mediaItems"] = [{"url": public_url, "type": "image"}]
+                image_info = f"with Zernio media: {public_url[:50]}..."
+                logger.info(f"✓ Media uploaded to Zernio")
+            else:
+                logger.warning(f"Failed to upload media, posting without image")
+                
+        except Exception as e:
+            logger.warning(f"Media upload error: {e}, posting without image")
+    elif media_file and not is_published_now:
+        logger.info(f"Skipping media for scheduled post (Zernio limitation)")
+        image_info = "(scheduled - media skipped per Zernio)"
     
     # Build headers (SECURITY: no sensitive data in logs)
     headers = {
