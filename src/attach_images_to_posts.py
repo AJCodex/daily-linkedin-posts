@@ -27,12 +27,15 @@ from config.logger import get_logger
 from config.utils import api_request_with_retry, safe_json_load, validate_api_key
 from config.constants import (
     TODAY, OUTPUT_POSTS_DIR, OPENROUTER_BASE_URL, OPENROUTER_MODEL,
-    OPENROUTER_TIMEOUT, UNSPLASH_BASE_URL
+    OPENROUTER_TIMEOUT_SEC, UNSPLASH_BASE_URL, UNSPLASH_TIMEOUT_SEC
 )
 from dotenv import load_dotenv
 
 load_dotenv()
 logger = get_logger(__name__)
+
+# Load from environment
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
 # Configuration
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")

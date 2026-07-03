@@ -13,14 +13,15 @@ from datetime import datetime
 # OpenRouter API (for test content generation)
 OPENROUTER_BASE_URL = "https://openrouter.io/api/v1"
 OPENROUTER_MODEL = "google/gemma-4-31b-it:free"
-OPENROUTER_TIMEOUT = 60
-
-# Zernio API (LinkedIn integration)
-ZERNIO_BASE_URL = os.getenv("ZERNIO_BASE_URL", "https://zernio.com/api/v1")
-ZERNIO_TIMEOUT = 30
+OPENROUTER_TIMEOUT_SEC = 60  # seconds for API requests
 
 # Unsplash API (image fetching)
 UNSPLASH_BASE_URL = "https://source.unsplash.com/1200x630"
+UNSPLASH_TIMEOUT_SEC = 30  # seconds for image fetch
+
+# Zernio API (LinkedIn integration)
+ZERNIO_BASE_URL = os.getenv("ZERNIO_BASE_URL", "https://zernio.com/api/v1")
+ZERNIO_TIMEOUT_SEC = 30
 
 # ============================================================================
 # Image Generation Configuration

@@ -30,8 +30,45 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from config.logger import get_logger
+from dotenv import load_dotenv
 
+# Load environment variables first
+load_dotenv()
 logger = get_logger(__name__)
+
+
+def validate_environment():
+    """Validate that all required environment variables are set."""
+    logger.info("Validating environment configuration...")
+    
+    required_vars = {
+        "ZERNIO_API_KEY": "LinkedIn Zernio API key (required for posting)",
+        "LINKEDIN_ACCOUNT_ID": "LinkedIn account ID (required for posting)",
+    }
+    
+    optional_vars = {
+        "OPENROUTER_API_KEY": "OpenRouter API key (optional, falls back to demo mode)",
+    }
+    
+    missing = []
+    for var, desc in required_vars.items():
+        if not os.getenv(var):
+            missing.append(f"  ❌ {var}: {desc}")
+            logger.warning(f"Missing required: {var}")
+    
+    for var, desc in optional_vars.items():
+        if not os.getenv(var):
+            logger.info(f"Optional {var} not set - demo mode will use fallback keywords")
+    
+    if missing:
+        logger.error("❌ Missing required environment variables:")
+        for msg in missing:
+            logger.error(msg)
+        logger.error("\nSet these in .env file or GitHub Actions secrets before running.")
+        return False
+    
+    logger.info("✅ Environment configuration valid")
+    return True
 
 
 def print_header(title: str, width: int = 80):
@@ -80,9 +117,13 @@ def main():
     logger.info(f"Date: {datetime.date.today().strftime('%Y-%m-%d')}")
     logger.info("Status: Starting full pipeline\n")
     
+    # Validate environment first
+    if not validate_environment():
+        return 1
+    
     # Check if posts already generated today
     today = datetime.date.today().strftime("%Y%m%d")
-    existing_posts = f"linkedin_posts_{today}.txt"
+    existing_posts = f"test_posts_{today}.txt"
     
     skip_generation = False
     if os.path.exists(existing_posts):

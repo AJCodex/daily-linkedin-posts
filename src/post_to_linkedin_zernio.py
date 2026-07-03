@@ -25,13 +25,17 @@ if project_root not in sys.path:
 from config.logger import get_logger
 from config.utils import api_request_with_retry, validate_api_key, validate_url, safe_json_load
 from config.constants import (
-    TODAY, ZERNIO_BASE_URL, ZERNIO_TIMEOUT, LINKEDIN_ACCOUNT_ID,
+    TODAY, ZERNIO_BASE_URL, ZERNIO_TIMEOUT_SEC,
     SCHEDULING, POST_TYPES, GITHUB_IMAGES_BASE
 )
 from dotenv import load_dotenv
 
 load_dotenv()
 logger = get_logger(__name__)
+
+# Load from environment (with validation)
+LINKEDIN_ACCOUNT_ID = os.getenv("LINKEDIN_ACCOUNT_ID", "")
+ZERNIO_API_KEY = os.getenv("ZERNIO_API_KEY", "")
 
 # Configuration
 ZERNIO_API_KEY = os.getenv("ZERNIO_API_KEY")
@@ -202,7 +206,7 @@ def post_to_linkedin(post_data: dict) -> dict:
             ZERNIO_ENDPOINT,
             headers,
             payload,
-            ZERNIO_TIMEOUT,
+            ZERNIO_TIMEOUT_SEC,
             f"Post #{stream_num} ({post_type})"
         )
         
