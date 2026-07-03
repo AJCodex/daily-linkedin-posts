@@ -16,6 +16,7 @@ import os
 import json
 import datetime
 import re
+import base64
 
 # Add project root to Python path (for GitHub Actions)
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +40,49 @@ ZERNIO_API_KEY = os.getenv("ZERNIO_API_KEY", "")
 ZERNIO_ENDPOINT = f"{ZERNIO_BASE_URL}/posts"
 
 
+def file_url_to_base64(file_url: str) -> str:
+    """
+    Convert file:// URL to base64 data URL for LinkedIn posting.
+    
+    Args:
+        file_url: file:// URL path to local image
+        
+    Returns:
+        data:image/png;base64,... data URL, or empty string on failure
+    """
+    try:
+        # Extract file path from file:// URL
+        file_path = file_url.replace("file://", "").strip()
+        
+        # Make sure file exists
+        if not os.path.exists(file_path):
+            logger.warning(f"Image file not found: {file_path}")
+            return ""
+        
+        # Determine image type
+        if file_path.lower().endswith(".png"):
+            mime_type = "image/png"
+        elif file_path.lower().endswith(".jpg") or file_path.lower().endswith(".jpeg"):
+            mime_type = "image/jpeg"
+        elif file_path.lower().endswith(".gif"):
+            mime_type = "image/gif"
+        else:
+            mime_type = "image/png"  # Default to PNG
+        
+        # Read file and encode to base64
+        with open(file_path, "rb") as f:
+            image_data = f.read()
+            b64_data = base64.b64encode(image_data).decode("utf-8")
+            
+        data_url = f"data:{mime_type};base64,{b64_data}"
+        logger.debug(f"Converted local image to base64: {os.path.basename(file_path)} ({len(image_data)} bytes)")
+        return data_url
+        
+    except Exception as e:
+        logger.error(f"Failed to convert file to base64: {e}")
+        return ""
+
+
 def validate_configuration() -> bool:
     """Validate all required configuration is present."""
     
@@ -56,7 +100,7 @@ def extract_posts_from_file() -> list:
     """
     Extract posts with images from multimedia JSON file.
     Falls back to text file if JSON not found.
-    Converts file:// URLs to GitHub raw URLs for public access.
+    Converts file:// URLs to base64 data URLs for Zernio API.
     """
     
     # Try JSON file (has images)
@@ -73,14 +117,15 @@ def extract_posts_from_file() -> list:
             for post in posts_data:
                 image_url = post.get("image_url", "")
                 
-                # SECURITY: Convert file:// URLs to GitHub raw URLs
+                # Convert file:// URLs to base64 data URLs
                 if image_url.startswith("file://"):
-                    filename = image_url.split("\\")[-1]  # Get filename
-                    image_url = f"{GITHUB_IMAGES_BASE}/{filename}"
-                    logger.debug(f"Converted file:// to GitHub URL: {filename}")
+                    logger.debug(f"Converting local file to base64 data URL...")
+                    image_url = file_url_to_base64(image_url)
+                    if image_url:
+                        logger.info(f"✓ Local image converted to base64 ({len(image_url)//1000} KB)")
                 
-                # SECURITY: Validate URL
-                if image_url and not validate_url(image_url):
+                # SECURITY: Validate URL (skip for base64 data URLs)
+                if image_url and not image_url.startswith("data:") and not validate_url(image_url):
                     logger.warning(f"Invalid image URL, skipping: {image_url[:50]}")
                     image_url = ""
                 
@@ -150,8 +195,8 @@ def post_to_linkedin(post_data: dict) -> dict:
         logger.error(f"Post {stream_num}: Invalid content length")
         return {"success": False, "error": "Invalid content", "stream": stream_num}
     
-    # SECURITY: Validate URL if present
-    if image_url and not validate_url(image_url):
+    # SECURITY: Validate URL if present (skip validation for data URLs)
+    if image_url and not image_url.startswith("data:") and not validate_url(image_url):
         logger.warning(f"Post {stream_num}: Invalid image URL, posting without image")
         image_url = ""
     
@@ -185,6 +230,9 @@ def post_to_linkedin(post_data: dict) -> dict:
     # Add image if present
     if image_url:
         payload["media"] = [{"type": "image", "url": image_url}]
+        image_info = "with image" if image_url.startswith("data:") else f"with image: {image_url[:60]}..."
+    else:
+        image_info = "without image"
     
     # Build headers (SECURITY: no sensitive data in logs)
     headers = {
@@ -193,7 +241,7 @@ def post_to_linkedin(post_data: dict) -> dict:
         "User-Agent": "Daily LinkedIn Posts Pipeline"
     }
     
-    logger.info(f"\n[{stream_num}] Posting {post_type} ({publish_status})")
+    logger.info(f"\n[{stream_num}] Posting {post_type} ({publish_status}) {image_info}")
     
     try:
         # Make API request with retry logic
