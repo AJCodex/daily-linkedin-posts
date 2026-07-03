@@ -244,7 +244,7 @@ def create_carousel_image(slides):
     """Create carousel image using Playwright."""
     
     if not PLAYWRIGHT_AVAILABLE:
-        print("[!] Playwright not available, using PIL fallback...")
+        logger.warning("Playwright not available, using PIL fallback...")
         return create_carousel_image_pil(slides)
     
     html = create_carousel_html(slides)
@@ -256,10 +256,10 @@ def create_carousel_image(slides):
     try:
         # Run async Playwright rendering
         asyncio.run(render_carousel_with_playwright(html, image_path))
-        print(f"[+] Created carousel image: {image_path}")
+        logger.info(f"Created carousel image: {image_path}")
         return image_path
     except Exception as e:
-        print(f"[!] Playwright rendering failed: {e}, using PIL fallback...")
+        logger.error(f"Playwright rendering failed: {e}, using PIL fallback...")
         return create_carousel_image_pil(slides)
 
 def create_carousel_image_pil(slides):
@@ -294,7 +294,7 @@ def create_carousel_image_pil(slides):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     image_path = f"{OUTPUT_DIR}/carousel_{timestamp}.png"
     img.save(image_path)
-    print(f"[+] Created carousel image (PIL): {image_path}")
+    logger.info(f"Created carousel image (PIL): {image_path}")
     return image_path
 
 # ============================================================================
@@ -400,7 +400,7 @@ def create_infographic_image(title, data_points):
     fig.savefig(image_path, dpi=100, bbox_inches='tight', facecolor='white')
     plt.close()
     
-    print(f"[+] Created infographic image: {image_path}")
+    logger.info(f"Created infographic image: {image_path}")
     return image_path
 
 # ============================================================================
@@ -414,10 +414,10 @@ def process_visual_posts():
     json_file = f"output/posts_{today}/posts/posts_with_images.json"
     
     if not os.path.exists(json_file):
-        print(f"[!] posts_with_images.json not found: {json_file}")
+        logger.error(f"posts_with_images.json not found: {json_file}")
         return
     
-    print(f"[>] Reading posts from: {json_file}")
+    logger.info(f"Reading posts from: {json_file}")
     
     with open(json_file, 'r', encoding='utf-8') as f:
         posts = json.load(f)
@@ -430,9 +430,9 @@ def process_visual_posts():
         
         # Carousel posts
         if "Carousel" in post_type:
-            print(f"\n[>] Processing carousel post...")
+            logger.info("Processing carousel post...")
             slides = parse_carousel_slides(content)
-            print(f"    Found {len(slides)} slides")
+            logger.debug(f"Found {len(slides)} slides")
             image_path = create_carousel_image(slides)
             
             post["image_url"] = f"file://{os.path.abspath(image_path)}"
@@ -442,9 +442,9 @@ def process_visual_posts():
         
         # Infographic posts
         elif "Infographic" in post_type:
-            print(f"\n[>] Processing infographic post...")
+            logger.info("Processing infographic post...")
             title, data_points = parse_infographic_data(content)
-            print(f"    Found {len(data_points)} data points")
+            logger.debug(f"Found {len(data_points)} data points")
             image_path = create_infographic_image(title, data_points)
             
             post["image_url"] = f"file://{os.path.abspath(image_path)}"
@@ -456,14 +456,11 @@ def process_visual_posts():
     if updated:
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(posts, f, indent=2, ensure_ascii=False)
-        print(f"\n[+] Updated posts_with_images.json with generated images")
+        logger.info("Updated posts_with_images.json with generated images")
     
     return posts
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("Generating Enhanced Visual Images")
-    print("=" * 60)
-    print()
-    
+    logger.info("Starting visual image generation")
     process_visual_posts()
+    logger.info("Visual image generation complete")

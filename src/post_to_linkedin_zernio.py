@@ -36,10 +36,6 @@ logger = get_logger(__name__)
 # Load from environment (with validation)
 LINKEDIN_ACCOUNT_ID = os.getenv("LINKEDIN_ACCOUNT_ID", "")
 ZERNIO_API_KEY = os.getenv("ZERNIO_API_KEY", "")
-
-# Configuration
-ZERNIO_API_KEY = os.getenv("ZERNIO_API_KEY")
-ZERNIO_ACCOUNT_ID = os.getenv("LINKEDIN_ACCOUNT_ID")
 ZERNIO_ENDPOINT = f"{ZERNIO_BASE_URL}/posts"
 
 
@@ -48,7 +44,7 @@ def validate_configuration() -> bool:
     
     try:
         validate_api_key(ZERNIO_API_KEY, "ZERNIO_API_KEY")
-        validate_api_key(ZERNIO_ACCOUNT_ID, "LINKEDIN_ACCOUNT_ID")
+        validate_api_key(LINKEDIN_ACCOUNT_ID, "LINKEDIN_ACCOUNT_ID")
         logger.debug("✓ Configuration validated")
         return True
     except ValueError as e:
@@ -162,7 +158,7 @@ def post_to_linkedin(post_data: dict) -> dict:
     # Build platform configuration
     platform_config = {
         "platform": "linkedin",
-        "accountId": ZERNIO_ACCOUNT_ID,
+        "accountId": LINKEDIN_ACCOUNT_ID,
     }
     
     # Add scheduling if specified for this post type

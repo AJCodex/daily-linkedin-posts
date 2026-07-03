@@ -37,10 +37,6 @@ logger = get_logger(__name__)
 # Load from environment
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
-# Configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_TIMEOUT_SEC = OPENROUTER_TIMEOUT
-
 
 def generate_image_keywords(post_content: str, post_type: str) -> str:
     """
