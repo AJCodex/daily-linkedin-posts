@@ -136,9 +136,9 @@ def fetch_unsplash_image(keywords: str) -> str:
 
 
 def extract_posts_from_file() -> list:
-    """Extract posts from linkedin_posts_YYYYMMDD.txt."""
+    """Extract posts from test_posts_YYYYMMDD.txt."""
     
-    file_path = f"linkedin_posts_{TODAY}.txt"
+    file_path = f"test_posts_{TODAY}.txt"
     
     if not os.path.exists(file_path):
         logger.error(f"Posts file not found: {file_path}")
