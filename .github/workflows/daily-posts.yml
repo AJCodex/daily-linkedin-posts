@@ -33,19 +33,53 @@ jobs:
         echo "ZERNIO_API_KEY=${{ secrets.ZERNIO_API_KEY }}" >> .env
         echo "LINKEDIN_ACCOUNT_ID=${{ secrets.LINKEDIN_ACCOUNT_ID }}" >> .env
         echo "ZERNIO_BASE_URL=https://zernio.com/api/v1" >> .env
+        echo "✅ Environment configured"
+        if [ -z "${{ secrets.OPENROUTER_API_KEY }}" ]; then echo "⚠️ WARNING: OPENROUTER_API_KEY not set"; fi
     
     - name: Fetch news
       run: python3 fetch_ai_news_rss.py 2>&1 || echo "News fetch failed (non-critical)"
       continue-on-error: true
     
+    - name: Debug environment
+      run: |
+        echo "📁 Current directory: $(pwd)"
+        echo "📂 Files in directory:"
+        ls -la | head -20
+        echo "🐍 Python version:"
+        python3 --version
+        echo "📦 Installed packages:"
+        pip list | grep -E "requests|openpyxl|python-dotenv"
+      continue-on-error: true
+    
     - name: Generate posts
       run: |
-        python3 generate_posts_2post_model.py 2>&1 || (echo "API failed, using demo..." && python3 generate_posts_2post_model_demo.py)
+        echo "▶️  Starting post generation..."
+        python3 generate_posts_2post_model.py 2>&1 && echo "✅ Posts generated" || (echo "⚠️  API failed, using demo..." && python3 generate_posts_2post_model_demo.py && echo "✅ Demo posts created")
+        echo "📄 Generated files:"
+        ls -la linkedin_posts_* 2>/dev/null || echo "No posts found"
       continue-on-error: true
     
     - name: Ensure posts exist (fallback)
-      run: python3 generate_posts_2post_model_demo.py 2>/dev/null || echo "Fallback posts ensured"
-      continue-on-error: true
+      run: |
+        TODAY=$(date +%Y%m%d)
+        if [ ! -f linkedin_posts_${TODAY}.txt ]; then
+          echo "❌ No posts file found, creating emergency fallback..."
+          cat > linkedin_posts_${TODAY}.txt << 'EOF'
+==================================================
+STREAM 1 — News
+==================================================
+Microsoft Azure AI continues advancing enterprise AI capabilities.
+
+==================================================
+STREAM 2 — Tips & Tricks
+==================================================
+Best practice: Focus on data quality first, scale later.
+EOF
+          echo "✅ Fallback posts created"
+        else
+          echo "✅ Posts file exists: linkedin_posts_${TODAY}.txt"
+        fi
+      continue-on-error: false
     
     - name: Attach images
       run: python3 attach_images_to_posts.py
