@@ -9,7 +9,7 @@ from datetime import datetime
 import re
 
 # Simulate the post generation with mock data
-MOCK_NEWS_POST = """🚀 **Azure AI Search Now Supports Multi-Turn Conversations**
+MOCK_NEWS_POST = """🚀 Azure AI Search Now Supports Multi-Turn Conversations
 
 Microsoft just launched multi-turn conversation support in Azure AI Search, letting you build conversational AI apps that remember context across interactions. 
 
@@ -24,7 +24,7 @@ Why it matters: Conversational AI is becoming the default UX. This closes the ga
 
 Source: Azure Updates Blog"""
 
-MOCK_TIPS_POST = """💡 **Use Search Indexes to Speed Up RAG by 10x**
+MOCK_TIPS_POST = """💡 Use Search Indexes to Speed Up RAG by 10x
 
 Most RAG implementations index everything—documents, PDFs, web pages. But here's what I learned:
 
@@ -42,7 +42,7 @@ The tradeoff: Occasionally, users ask about something not indexed. But being fas
 
 👉 What's in your RAG index? Are you being selective or indexing everything?"""
 
-MOCK_CAROUSEL_POST = """📊 **Inside Microsoft's AI Search Architecture (7 slides)**
+MOCK_CAROUSEL_POST = """📊 Inside Microsoft's AI Search Architecture (7 slides)
 
 Slide 1: The problem - traditional search is keyword-based
 Slide 2: Vector embeddings let you search by meaning
@@ -177,10 +177,9 @@ def main():
             f.write(f"{'=' * 60}\n")
             f.write(f"STREAM {i} — {post['stream']}\n")
             f.write(f"{'=' * 60}\n\n")
-            f.write(f"{post['content']}\n\n")
-            f.write(f"Source: {post['source']}\n")
-            f.write(f"Word count: {len(post['content'].split())}\n")
-            f.write(f"Format: Text Post\n\n")
+            # Clean content: remove asterisks and metadata
+            content = post['content'].replace('**', '').replace('*', '')
+            f.write(f"{content}\n\n")
     
     print(f"✓ Generated 2 posts")
     print(f"✓ Saved to: {output_file}")
