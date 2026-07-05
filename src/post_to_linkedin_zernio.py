@@ -17,7 +17,6 @@ import json
 import datetime
 import re
 import base64
-from glob import glob
 
 # Add project root to Python path (for GitHub Actions)
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,6 +30,7 @@ from config.constants import (
     SCHEDULING, POST_TYPES, GITHUB_IMAGES_BASE
 )
 from src.upload_media_zernio import upload_media
+from src.generate_images_llm import generate_and_save_image
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -222,43 +222,42 @@ def post_to_linkedin(post_data: dict) -> dict:
         "platforms": [platform_config]
     }
     
-    # Try to find and upload media file for this post
+    # Generate and upload media for this post (LLM-based image generation)
     image_info = "without media"
-    media_file = None
-    
-    # Look for generated image files (carousel or infographic)
-    if post_type == "Carousel":
-        # Find latest carousel image
-        carousel_files = glob(os.path.join("output/posts_generated_images", f"carousel_{TODAY}_*.png"))
-        if carousel_files:
-            media_file = sorted(carousel_files)[-1]  # Get most recent
-    elif post_type == "Infographic":
-        # Find latest infographic image
-        infographic_files = glob(os.path.join("output/posts_generated_images", f"infographic_{TODAY}_*.png"))
-        if infographic_files:
-            media_file = sorted(infographic_files)[-1]  # Get most recent
-    
-    # Upload media if found and post is immediate (not scheduled)
     is_published_now = platform_config.get("publishNow", False)
     
-    if media_file and os.path.exists(media_file) and is_published_now:
+    # For immediate posts (Carousel, Infographic, Motivation), generate unique images
+    if is_published_now and post_type in ["Carousel", "Infographic", "Motivation"]:
         try:
-            logger.info(f"Uploading media file: {os.path.basename(media_file)}")
-            upload_result = upload_media(media_file, content_type="image/png")
+            logger.info(f"Generating image for {post_type} post using LLM...")
+            media_file = generate_and_save_image(content, post_type)
             
-            if upload_result and upload_result.get("publicUrl"):
-                public_url = upload_result["publicUrl"]
-                payload["mediaItems"] = [{"url": public_url, "type": "image"}]
-                image_info = f"with Zernio media: {public_url[:50]}..."
-                logger.info(f"✓ Media uploaded to Zernio")
+            if media_file and os.path.exists(media_file):
+                logger.info(f"Uploading generated image: {os.path.basename(media_file)}")
+                upload_result = upload_media(media_file, content_type="image/png")
+                
+                if upload_result and upload_result.get("publicUrl"):
+                    public_url = upload_result["publicUrl"]
+                    # CRITICAL: mediaItems must be INSIDE platforms[0]
+                    platform_config["mediaItems"] = [{"url": public_url, "type": "image"}]
+                    image_info = f"with LLM-generated media"
+                    logger.info(f"✓ Image generated and uploaded to Zernio")
+                    
+                    # Clean up local temporary file
+                    try:
+                        os.remove(media_file)
+                    except:
+                        pass
+                else:
+                    logger.warning(f"Failed to upload generated image, posting without media")
             else:
-                logger.warning(f"Failed to upload media, posting without image")
+                logger.warning(f"Image generation failed, posting without media")
                 
         except Exception as e:
-            logger.warning(f"Media upload error: {e}, posting without image")
-    elif media_file and not is_published_now:
+            logger.warning(f"Image generation error: {e}, posting without media")
+    elif not is_published_now:
         logger.info(f"Skipping media for scheduled post (Zernio limitation)")
-        image_info = "(scheduled - media skipped per Zernio)"
+        image_info = "(scheduled - media skipped)"
     
     # Build headers (SECURITY: no sensitive data in logs)
     headers = {

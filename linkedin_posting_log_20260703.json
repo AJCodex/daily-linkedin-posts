@@ -1,52 +1,48 @@
 {
-  "timestamp": "2026-07-03T22:42:02.818343",
+  "timestamp": "2026-07-03T23:01:45.379712",
   "total": 5,
-  "successful": 5,
+  "successful": 4,
   "posts": [
     {
       "success": true,
-      "post_id": "6a47ed552b6c53b3e4e79be6",
+      "post_id": "6a47f1f1ca7a1f7b407a6c7a",
       "stream": 1,
       "type": "News",
       "scheduled_for": "2026-07-03T08:00:00.000Z",
       "has_image": true,
-      "timestamp": "2026-07-03T22:41:51.639296"
+      "timestamp": "2026-07-03T23:01:31.790255"
+    },
+    {
+      "success": false,
+      "error": "409 Conflict",
+      "stream": 2
     },
     {
       "success": true,
-      "post_id": "6a47ed573e0bede214c75d47",
-      "stream": 2,
-      "type": "Tips & Tricks",
-      "scheduled_for": "2026-07-03T16:00:00.000Z",
-      "has_image": true,
-      "timestamp": "2026-07-03T22:41:54.499380"
-    },
-    {
-      "success": true,
-      "post_id": "6a47ed5d3e0bede214c75ead",
+      "post_id": "6a47f1f8737c503b8dae6d68",
       "stream": 3,
       "type": "Carousel",
-      "scheduled_for": "2026-07-03T17:11:57.576Z",
+      "scheduled_for": "2026-07-03T17:31:36.544Z",
       "has_image": true,
-      "timestamp": "2026-07-03T22:41:58.430929"
+      "timestamp": "2026-07-03T23:01:37.416541"
     },
     {
       "success": true,
-      "post_id": "6a47ed603e0bede214c75fb2",
+      "post_id": "6a47f1fc737c503b8dae6d78",
       "stream": 4,
       "type": "Infographic",
-      "scheduled_for": "2026-07-03T17:12:00.967Z",
+      "scheduled_for": "2026-07-03T17:31:40.592Z",
       "has_image": true,
-      "timestamp": "2026-07-03T22:42:01.792349"
+      "timestamp": "2026-07-03T23:01:41.468568"
     },
     {
       "success": true,
-      "post_id": "6a47ed613e0bede214c7600c",
+      "post_id": "6a47f200ca7a1f7b407a6f61",
       "stream": 5,
       "type": "Motivation",
-      "scheduled_for": "2026-07-03T17:12:01.992Z",
+      "scheduled_for": "2026-07-03T17:31:44.529Z",
       "has_image": true,
-      "timestamp": "2026-07-03T22:42:02.816341"
+      "timestamp": "2026-07-03T23:01:45.378712"
     }
   ]
 }
